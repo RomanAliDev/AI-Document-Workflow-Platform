@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-
+from datetime import date, datetime
 
 def validate_sql_query(query: str) -> str:
 
@@ -35,16 +35,23 @@ def execute_sql_query(
     query: str,
     db: Session
 ):
-
-    # Validate SQL before execution
     validated_query = validate_sql_query(query)
 
-    # Execute query
     result = db.execute(
         text(validated_query)
     )
 
-    # Convert rows into dictionaries
     rows = result.mappings().all()
 
-    return rows
+    converted_rows = []
+
+    for row in rows:
+        row_data = dict(row)
+
+        for key, value in row_data.items():
+            if isinstance(value, (date, datetime)):
+                row_data[key] = value.isoformat()
+
+        converted_rows.append(row_data)
+
+    return converted_rows
