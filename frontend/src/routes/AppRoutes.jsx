@@ -4,9 +4,14 @@ import Login from "../pages/auth/Login";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Documents from "../pages/documents/Documents";
 import AIAssistant from "../pages/ai/AIAssistant";
+import SemanticSearch from "../Pages/ai/SemanticSearch";
+import Settings from "../pages/Settings";
+import UserManagement from "../Pages/administration/UserManagement";
+import DepartmentManagement from "../Pages/administration/DepartmentManagement";
 
 import ProtectedRoute from "./ProtectedRoute";
 import MainLayout from "../components/layout/MainLayout";
+import Analytics from "../Pages/Analytics";
 
 const AppRoutes = () => {
   return (
@@ -43,6 +48,61 @@ const AppRoutes = () => {
             <ProtectedRoute>
               <MainLayout>
                 <AIAssistant />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/semantic-search"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <SemanticSearch />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/user-management"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <UserManagement />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/department-management"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <DepartmentManagement />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <Analytics />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/setting"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <Settings />
               </MainLayout>
             </ProtectedRoute>
           }

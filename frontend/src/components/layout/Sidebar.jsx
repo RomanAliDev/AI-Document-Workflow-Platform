@@ -19,7 +19,7 @@ const Sidebar = () => {
     },
     {
       name: "Semantic Search",
-      path: "/search",
+      path: "/semantic-search",
     },
   ];
 
@@ -30,26 +30,20 @@ const Sidebar = () => {
         path: "/analytics",
       },
       {
-        name: "Users",
-        path: "/users",
+        name: "Users Management",
+        path: "/user-management",
       },
       {
         name: "Departments",
-        path: "/departments",
+        path: "/department-management",
       },
     );
   }
 
-  menuItems.push(
-    {
-      name: "Settings",
-      path: "/settings",
-    },
-    {
-      name: "Profile",
-      path: "/profile",
-    },
-  );
+  menuItems.push({
+    name: "Settings",
+    path: "/setting",
+  });
 
   return (
     <aside className="sticky top-0 flex h-screen w-64 flex-col border-r bg-white">

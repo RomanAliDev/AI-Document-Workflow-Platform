@@ -1,38 +1,24 @@
+import { useEffect, useState } from "react";
+import { getDocuments } from "../../services/documentService";
+
 const DocumentTable = () => {
-  const documents = [
-    {
-      id: 1,
-      name: "Invoice_001.pdf",
-      type: "Invoice",
-      status: "Processed",
-      uploadedBy: "Admin",
-      date: "Sep 18, 2026",
-    },
-    {
-      id: 2,
-      name: "Purchase_Order_12.pdf",
-      type: "Purchase Order",
-      status: "Processed",
-      uploadedBy: "Ali",
-      date: "Sep 17, 2026",
-    },
-    {
-      id: 3,
-      name: "Financial_Report.xlsx",
-      type: "Financial Report",
-      status: "Processing",
-      uploadedBy: "Admin",
-      date: "Sep 17, 2026",
-    },
-    {
-      id: 4,
-      name: "Contract_ABC.pdf",
-      type: "Contract",
-      status: "Manual Review",
-      uploadedBy: "Ali",
-      date: "Sep 16, 2026",
-    },
-  ];
+  const [documents, setDocuments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDocuments = async () => {
+      try {
+        const data = await getDocuments();
+        setDocuments(data);
+      } catch (error) {
+        console.error("Failed to load documents:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDocuments();
+  }, []);
 
   return (
     <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
@@ -63,42 +49,60 @@ const DocumentTable = () => {
           </thead>
 
           <tbody>
-            {documents.map((document) => (
-              <tr
-                key={document.id}
-                className="border-b last:border-b-0 hover:bg-gray-50">
-                <td className="px-5 py-4 font-medium text-gray-900">
-                  {document.name}
-                </td>
-
-                <td className="px-5 py-4 text-gray-600">{document.type}</td>
-
-                <td className="px-5 py-4">
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-medium ${
-                      document.status === "Processed"
-                        ? "bg-green-100 text-green-700"
-                        : document.status === "Processing"
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-yellow-100 text-yellow-700"
-                    }`}>
-                    {document.status}
-                  </span>
-                </td>
-
-                <td className="px-5 py-4 text-gray-600">
-                  {document.uploadedBy}
-                </td>
-
-                <td className="px-5 py-4 text-gray-600">{document.date}</td>
-
-                <td className="px-5 py-4">
-                  <button className="text-sm font-medium text-blue-600 hover:text-blue-800">
-                    View
-                  </button>
+            {loading ? (
+              <tr>
+                <td colSpan="6" className="px-5 py-8 text-center text-gray-500">
+                  Loading documents...
                 </td>
               </tr>
-            ))}
+            ) : documents.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="px-5 py-8 text-center text-gray-500">
+                  No documents found.
+                </td>
+              </tr>
+            ) : (
+              documents.map((document) => (
+                <tr
+                  key={document.id}
+                  className="border-b last:border-b-0 hover:bg-gray-50">
+                  <td className="px-5 py-4 font-medium text-gray-900">
+                    {document.filename}
+                  </td>
+
+                  <td className="px-5 py-4 text-gray-600">
+                    {document.file_type}
+                  </td>
+
+                  <td className="px-5 py-4">
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-medium ${
+                        document.status === "processed"
+                          ? "bg-green-100 text-green-700"
+                          : document.status === "processing"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-yellow-100 text-yellow-700"
+                      }`}>
+                      {document.status}
+                    </span>
+                  </td>
+
+                  <td className="px-5 py-4 text-gray-600">
+                    {document.uploaded_by}
+                  </td>
+
+                  <td className="px-5 py-4 text-gray-600">
+                    {document.uploaded_at}
+                  </td>
+
+                  <td className="px-5 py-4">
+                    <button className="text-sm font-medium text-blue-600 hover:text-blue-800">
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

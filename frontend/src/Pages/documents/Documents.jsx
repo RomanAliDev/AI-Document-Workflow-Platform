@@ -1,8 +1,15 @@
-// import DocumentFilters from "../../components/documents/DocumentFilters";
+import { useState } from "react";
+
 import UploadDocument from "../../components/documents/UploadDocument";
 import DocumentTable from "../../components/documents/DocumentTable";
 
 const Documents = () => {
+  const [refresh, setRefresh] = useState(0);
+
+  const handleUploadSuccess = () => {
+    setRefresh((previous) => previous + 1);
+  };
+
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
@@ -14,12 +21,12 @@ const Documents = () => {
           </p>
         </div>
 
-        <UploadDocument />
+        <UploadDocument onUploadSuccess={handleUploadSuccess} />
       </div>
 
       {/* <DocumentFilters /> */}
 
-      <DocumentTable />
+      <DocumentTable refresh={refresh} />
     </div>
   );
 };

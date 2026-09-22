@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 from app.database.database import engine, Base
 
+from app.routers.users import router as users_router
 from app.routers.auth import router as auth_router
-from app.routers.user import router as users_router
 from app.routers.documents import router as documents_router
 from app.routers.chat import router as chat_router
+from app.routers.departments import router as department_router
+from app.routers.analytics import router as analytics_router
 
 from app.models.document import Document
 from app.models.invoice import Invoice
@@ -15,6 +17,9 @@ from app.models.manual_review import ManualReview
 from app.models.document_extraction import DocumentExtraction 
 from app.models.chat_history import ChatHistory
 from app.models.user import User
+from app.models.chat_session import ChatSession
+from app.models.departments import Department
+
 
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -37,8 +42,9 @@ def root():
         "message": "API is running"
     }
 
-
-app.include_router(auth_router)
 app.include_router(users_router)
+app.include_router(auth_router)
 app.include_router(documents_router)
 app.include_router(chat_router)
+app.include_router(department_router)
+app.include_router(analytics_router)

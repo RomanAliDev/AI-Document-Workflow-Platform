@@ -16,13 +16,18 @@ class ChatHistory(Base):
     )
 
     question = Column(Text, nullable=False)
-
+    
     answer = Column(Text, nullable=False)
 
     route = Column(String, nullable=True)
 
     sources = Column(JSON, nullable=True)
 
+    session_id = Column(
+    Integer,
+    ForeignKey("chat_sessions.id"),
+    nullable=False
+    )
     results = Column(JSON, nullable=True)
 
     created_at = Column(

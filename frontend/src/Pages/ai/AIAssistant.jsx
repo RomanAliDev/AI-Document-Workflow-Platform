@@ -1,164 +1,224 @@
 import { useEffect, useState } from "react";
-import { sendChatMessage, getChatHistory } from "../../services/chat";
-import { Send } from "lucide-react";
+
+import {
+  createChat,
+  getChats,
+  getChatMessages,
+  deleteChat,
+  sendChatMessage,
+} from "../../services/chat";
+
+import ChatSidebar from "../../components/ai/ChatSidebar";
+import ChatWindow from "../../components/ai/ChatWindow";
+import ChatInput from "../../components/ai/ChatInput";
 
 const AIAssistant = () => {
+  const [chats, setChats] = useState([]);
+  const [activeChatId, setActiveChatId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Load chats for sidebar only
   useEffect(() => {
-    const loadChatHistory = async () => {
+    const loadChats = async () => {
       try {
-        const history = await getChatHistory();
+        const chatList = await getChats();
 
-        const formattedHistory = [];
+        setChats(chatList);
 
-        history.reverse().forEach((chat) => {
-          formattedHistory.push({
-            role: "user",
-            content: chat.question,
-          });
-
-          formattedHistory.push({
-            role: "assistant",
-            content: chat.answer,
-          });
-        });
-
-        setMessages(formattedHistory);
+        // Always start with a blank conversation
+        setActiveChatId(null);
+        setMessages([]);
+        setQuestion("");
       } catch (error) {
-        console.error("Failed to load chat history:", error);
+        console.error("Failed to load chats:", error);
       }
     };
 
-    loadChatHistory();
+    // Reset chat UI when page opens
+    setActiveChatId(null);
+    setMessages([]);
+    setQuestion("");
+
+    loadChats();
   }, []);
 
+  // Format backend messages
+  const formatMessages = (history) => {
+    const formattedMessages = [];
+
+    history.forEach((chat) => {
+      formattedMessages.push({
+        role: "user",
+        content: chat.question,
+      });
+
+      formattedMessages.push({
+        role: "assistant",
+        content: chat.answer,
+        route: chat.route,
+        sources: chat.sources || [],
+        results: chat.results || [],
+      });
+    });
+
+    setMessages(formattedMessages);
+  };
+
+  // Start blank chat
+  // Do NOT create database session here
+  const handleNewChat = () => {
+    setActiveChatId(null);
+    setMessages([]);
+    setQuestion("");
+  };
+
+  // Open existing chat
+  const handleSelectChat = async (chatId) => {
+    try {
+      setLoading(true);
+
+      setActiveChatId(chatId);
+      setMessages([]);
+      setQuestion("");
+
+      const data = await getChatMessages(chatId);
+
+      formatMessages(data.messages);
+    } catch (error) {
+      console.error("Failed to load chat:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete chat
+  const handleDeleteChat = async (chatId) => {
+    try {
+      await deleteChat(chatId);
+
+      setChats((previousChats) =>
+        previousChats.filter((chat) => chat.id !== chatId),
+      );
+
+      // Clear main area if deleted chat was active
+      if (activeChatId === chatId) {
+        setActiveChatId(null);
+        setMessages([]);
+        setQuestion("");
+      }
+    } catch (error) {
+      console.error("Failed to delete chat:", error);
+    }
+  };
+
+  // Send message
   const handleSend = async () => {
     if (!question.trim() || loading) {
       return;
     }
 
-    const userMessage = {
-      role: "user",
-      content: question,
-    };
-
-    setMessages((previousMessages) => [...previousMessages, userMessage]);
-
-    const currentQuestion = question;
+    const currentQuestion = question.trim();
 
     setQuestion("");
     setLoading(true);
 
     try {
-      const data = await sendChatMessage(currentQuestion);
+      let chatId = activeChatId;
 
+      /*
+        If no chat is active, create the database session
+        only when the user actually sends a question.
+      */
+      if (!chatId) {
+        const newChat = await createChat();
+
+        chatId = newChat.id;
+
+        setActiveChatId(chatId);
+
+        setChats((previousChats) => [newChat, ...previousChats]);
+      }
+
+      // Add user message immediately
+      const userMessage = {
+        role: "user",
+        content: currentQuestion,
+      };
+
+      setMessages((previousMessages) => [...previousMessages, userMessage]);
+
+      // Send question to backend
+      const data = await sendChatMessage(currentQuestion, chatId);
+
+      // Add assistant response
       const assistantMessage = {
         role: "assistant",
         content: data.answer,
+        route: data.route,
+        sources: data.sources || [],
+        results: data.results || [],
       };
 
       setMessages((previousMessages) => [
         ...previousMessages,
         assistantMessage,
       ]);
+
+      // Refresh sidebar
+      const updatedChats = await getChats();
+
+      setChats(updatedChats);
     } catch (error) {
       console.error("Chat request failed:", error);
 
-      setMessages((previousMessages) => [
-        ...previousMessages,
-        {
-          role: "assistant",
-          content:
-            error.response?.data?.detail ||
-            error.message ||
-            "Something Went Wrong...",
-        },
-      ]);
+      const errorMessage = {
+        role: "assistant",
+        content:
+          error.response?.data?.detail ||
+          error.message ||
+          "Something went wrong.",
+      };
+
+      setMessages((previousMessages) => [...previousMessages, errorMessage]);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex h-[calc(100vh-7rem)] flex-col rounded-xl border bg-white shadow-sm">
-      <div className="border-b px-6 py-4">
-        <h1 className="text-xl font-semibold text-gray-900">AI Assistant</h1>
+    <div className="flex h-[calc(100vh-7rem)] overflow-hidden rounded-xl border bg-white shadow-sm">
+      {/* Sidebar */}
+      <ChatSidebar
+        chats={chats}
+        activeChatId={activeChatId}
+        onNewChat={handleNewChat}
+        onSelectChat={handleSelectChat}
+        onDeleteChat={handleDeleteChat}
+      />
 
-        <p className="mt-1 text-sm text-gray-500">
-          Ask questions about your financial documents and data
-        </p>
-      </div>
+      {/* Main Chat */}
+      <div className="flex flex-1 flex-col">
+        {/* Header */}
+        <div className="border-b px-6 py-4">
+          <h1 className="text-xl font-semibold text-gray-900">AI Assistant</h1>
 
-      <div className="flex-1 space-y-4 overflow-y-auto p-6">
-        {messages.length === 0 && (
-          <div className="flex h-full items-center justify-center">
-            <div className="text-center">
-              <h2 className="text-lg font-semibold text-gray-900">
-                How can I help you?
-              </h2>
-
-              <p className="mt-2 text-sm text-gray-500">
-                Ask a question about your documents or financial data.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`flex ${
-              message.role === "user" ? "justify-end" : "justify-start"
-            }`}>
-            <div
-              className={`max-w-2xl rounded-xl px-4 py-3 text-sm ${
-                message.role === "user"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-900"
-              }`}>
-              {message.content}
-            </div>
-          </div>
-        ))}
-
-        {loading && (
-          <div className="flex justify-start">
-            <div className="rounded-xl bg-gray-100 px-4 py-3 text-sm text-gray-500">
-              Thinking...
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="border-t p-4">
-        <div className="flex gap-3">
-          <input
-            type="text"
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSend();
-              }
-            }}
-            placeholder="Ask something..."
-            className="flex-1 rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-blue-500"
-          />
-
-          <button
-            onClick={handleSend}
-            disabled={loading || !question.trim()}
-            className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
-            {loading ? (
-              <span className="text-sm">Sending...</span>
-            ) : (
-              <Send size={18} className="-rotate-45" />
-            )}
-          </button>
+          <p className="mt-1 text-sm text-gray-500">
+            Ask questions about your financial documents and data
+          </p>
         </div>
+
+        {/* Messages */}
+        <ChatWindow messages={messages} loading={loading} />
+
+        {/* Input */}
+        <ChatInput
+          question={question}
+          setQuestion={setQuestion}
+          handleSend={handleSend}
+          loading={loading}
+        />
       </div>
     </div>
   );
