@@ -1,6 +1,6 @@
 import os 
 import shutil
-
+from fastapi.responses import FileResponse
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 
@@ -44,6 +44,19 @@ async def upload_document(
             detail=f"File type '{extension}' is not allowed."
         )
 
+    existing_document = (
+        db.query(Document)
+        .filter(Document.filename == file.filename)
+        .first()
+    )
+
+    if existing_document:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Document already exists."
+        )
+
+
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
     file_path = os.path.join(UPLOAD_DIR, file.filename)
@@ -78,7 +91,18 @@ def get_documents(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    documents = db.query(Document).all()
+    query = db.query(Document)
+
+    if current_user.role.lower() == "user":
+        query = query.filter(
+            Document.uploaded_by == current_user.id
+        )
+
+    documents = (
+        query
+        .order_by(Document.id.desc())
+        .all()
+    )
 
     return documents
 
@@ -99,3 +123,56 @@ def get_document(
         )
 
     return document
+
+@router.get("/{document_id}/view")
+def view_document(
+    document_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    document = (
+        db.query(Document)
+        .filter(Document.id == document_id)
+        .first()
+    )
+
+    if not document:
+        raise HTTPException(
+            status_code=404,
+            detail="Document not found"
+        )
+
+    if not os.path.exists(document.file_path):
+        raise HTTPException(
+            status_code=404,
+            detail="Document file not found"
+        )
+
+    media_types = {
+        ".pdf": "application/pdf",
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".txt": "text/plain",
+
+        ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ".xls": "application/vnd.ms-excel",
+
+        ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ".doc": "application/msword",
+
+        ".csv": "text/csv",
+    }
+
+    extension = os.path.splitext(document.filename)[1].lower()
+
+    media_type = media_types.get(
+        extension,
+        "application/octet-stream"
+    )
+
+    return FileResponse(
+        path=document.file_path,
+        media_type=media_type,
+        filename=document.filename
+    )

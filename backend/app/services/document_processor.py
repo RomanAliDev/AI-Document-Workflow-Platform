@@ -10,6 +10,7 @@ from app.services.document_save_service import save_extracted_data
 from app.services.classification_service import classify_document
 from app.services.extraction_service import extract_document_data
 from app.services.validation_service import validate_document
+from app.services.vector_service import save_document_chunks
 
 pytesseract.pytesseract.tesseract_cmd = (
     r"D:\OCR Software\tesseract.exe"
@@ -105,6 +106,11 @@ def process_document(file_path: str, db , document: Document):
 
     #  Classification
     classification = classify_document(text)
+    save_document_chunks(
+    db=db,
+    document_id=document.id,
+    text=text
+)
 
     #Extraction
     extracted_result = extract_document_data(

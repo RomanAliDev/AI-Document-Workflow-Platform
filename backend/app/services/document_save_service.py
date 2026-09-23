@@ -18,10 +18,10 @@ def save_extracted_data(
     validation
 ):
     print(f"Saving extracted data for document ID: {document.id}")
+
     document_type = classification.document_type.lower().strip()
     data = extracted_result.extracted_data
 
-    # Update existing document
     document.document_type = classification.document_type
 
     if validation["is_valid"]:
@@ -29,7 +29,21 @@ def save_extracted_data(
     else:
         document.status = "needs_review"
 
-    # Invoice
+    # Save complete extracted data for every document
+    extraction = DocumentExtraction(
+        document_id=document.id,
+        document_type=classification.document_type,
+        extracted_data=data,
+        validation_status=(
+            "valid"
+            if validation["is_valid"]
+            else "needs_review"
+        )
+    )
+
+    db.add(extraction)
+
+    # Save common invoice fields
     if document_type == "invoice":
 
         invoice = Invoice(
@@ -44,7 +58,7 @@ def save_extracted_data(
 
         db.add(invoice)
 
-    # Purchase Order
+    # Save common purchase order fields
     elif document_type in ["purchase order", "purchase_order", "po"]:
 
         purchase_order = PurchaseOrder(
@@ -58,7 +72,7 @@ def save_extracted_data(
 
         db.add(purchase_order)
 
-    # Goods Receipt
+    # Save common goods receipt fields
     elif document_type in ["goods receipt", "goods_receipt"]:
 
         goods_receipt = GoodsReceipt(
@@ -71,7 +85,7 @@ def save_extracted_data(
 
         db.add(goods_receipt)
 
-    # Contract
+    # Save common contract fields
     elif document_type == "contract":
 
         contract = Contract(
@@ -85,22 +99,7 @@ def save_extracted_data(
 
         db.add(contract)
 
-    # Document Extraction
-    else:
-        generic_extraction = DocumentExtraction(
-            document_id=document.id,
-            document_type=classification.document_type,
-            extracted_data=data,
-            validation_status=(
-                "valid"
-                if validation["is_valid"]
-                else "needs_review"
-            )
-        )
-
-        db.add(generic_extraction)    
-
-    # Validation failed → Manual Review
+    # Create manual review when validation fails
     if not validation["is_valid"]:
 
         review = ManualReview(

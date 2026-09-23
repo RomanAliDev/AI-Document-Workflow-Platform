@@ -7,6 +7,8 @@ from app.routers.documents import router as documents_router
 from app.routers.chat import router as chat_router
 from app.routers.departments import router as department_router
 from app.routers.analytics import router as analytics_router
+from app.routers.semantic_search import router as semantic_router 
+
 
 from app.models.document import Document
 from app.models.invoice import Invoice
@@ -48,3 +50,4 @@ app.include_router(documents_router)
 app.include_router(chat_router)
 app.include_router(department_router)
 app.include_router(analytics_router)
+app.include_router(semantic_router)

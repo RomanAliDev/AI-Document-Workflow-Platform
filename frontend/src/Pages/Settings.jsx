@@ -213,7 +213,7 @@ const Settings = () => {
                 setMessage("");
                 setError("");
               }}
-              className="rounded-lg border border-gray-300 cursor-pointer px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+              className="rounded-lg border border-gray-300 text-white cursor-pointer px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700">
               {showPasswordForm ? "Cancel" : "Change Password"}
             </button>
           </div>

@@ -1,17 +1,16 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from datetime import date, datetime
+from decimal import Decimal
+
 
 def validate_sql_query(query: str) -> str:
 
-    # Remove extra whitespace
     normalized_query = query.strip().lower()
 
-    # Only SELECT queries are allowed
     if not normalized_query.startswith("select"):
         raise ValueError("Only SELECT queries are allowed.")
 
-    # Block dangerous SQL operations
     forbidden_keywords = [
         "insert",
         "update",
@@ -49,8 +48,12 @@ def execute_sql_query(
         row_data = dict(row)
 
         for key, value in row_data.items():
+
             if isinstance(value, (date, datetime)):
                 row_data[key] = value.isoformat()
+
+            elif isinstance(value, Decimal):
+                row_data[key] = float(value)
 
         converted_rows.append(row_data)
 

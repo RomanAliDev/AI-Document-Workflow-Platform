@@ -98,11 +98,10 @@ const DepartmentManagement = () => {
         <button
           type="button"
           onClick={() => setShowForm(!showForm)}
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800">
+          className="rounded-lg bg-blue-600  px-4 py-2 text-sm font-medium text-white hover:bg-blue-800">
           + Create Department
         </button>
       </div>
-
       {/* Create Department Form */}
       {showForm && (
         <div className="rounded-xl border bg-white p-6 shadow-sm">
@@ -135,47 +134,49 @@ const DepartmentManagement = () => {
             <div className="flex items-center gap-3">
               <button
                 type="submit"
-                className="rounded-lg bg-gray-900 cursor-pointer px-4 py-2 text-sm font-medium text-white hover:bg-gray-800">
+                className="rounded-lg bg-blue-600  cursor-pointer px-4 py-2 text-sm font-medium text-white hover:bg-blue-800">
                 Create Department
               </button>
 
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="rounded-lg cursor-pointer border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                className="rounded-lg cursor-pointer border px-4 py-2 text-sm font-medium bg-blue-600 text-white hover:bg-blue-700">
                 Cancel
               </button>
             </div>
           </form>
         </div>
       )}
-
+      {/* Departments Table */}
       {/* Departments Table */}
       <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
-        <div className="border-b px-6 py-4">
+        <div className="border-b px-4 py-4 sm:px-6">
           <h2 className="font-semibold text-gray-900">Departments</h2>
         </div>
 
         {departments.length === 0 ? (
-          <div className="p-6 text-sm text-gray-500">No departments found.</div>
+          <div className="p-4 text-sm text-gray-500 sm:p-6">
+            No departments found.
+          </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-sm">
+          <div className="w-full overflow-x-auto">
+            <table className="min-w-[700px] w-full text-left text-sm">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 font-semibold text-gray-700">
+                  <th className="whitespace-nowrap px-4 py-3 font-semibold text-gray-700 sm:px-6">
                     Department
                   </th>
 
-                  <th className="px-6 py-3 font-semibold text-gray-700">
+                  <th className="px-4 py-3 font-semibold text-gray-700 sm:px-6">
                     Description
                   </th>
 
-                  <th className="px-6 py-3 font-semibold text-gray-700">
+                  <th className="whitespace-nowrap px-4 py-3 font-semibold text-gray-700 sm:px-6">
                     Assigned Users
                   </th>
 
-                  <th className="px-6 py-3 font-semibold text-gray-700">
+                  <th className="whitespace-nowrap px-4 py-3 font-semibold text-gray-700 sm:px-6">
                     Action
                   </th>
                 </tr>
@@ -184,23 +185,25 @@ const DepartmentManagement = () => {
               <tbody>
                 {departments.map((department) => (
                   <tr key={department.id} className="border-t">
-                    <td className="px-6 py-4 font-medium text-gray-900">
+                    <td className="whitespace-nowrap px-4 py-4 font-medium text-gray-900 sm:px-6">
                       {department.name}
                     </td>
 
-                    <td className="px-6 py-4 text-gray-600">
-                      {department.description || "-"}
+                    <td className="max-w-[280px] px-4 py-4 text-gray-600 sm:px-6">
+                      <div className="break-words">
+                        {department.description || "-"}
+                      </div>
                     </td>
 
-                    <td className="px-6 py-4 text-gray-600">
+                    <td className="whitespace-nowrap px-4 py-4 text-gray-600 sm:px-6">
                       {department.users_count}
                     </td>
 
-                    <td className="px-6 py-4">
+                    <td className="whitespace-nowrap px-4 py-4 sm:px-6">
                       <button
                         type="button"
                         onClick={() => handleDeleteDepartment(department.id)}
-                        className="text-sm cursor-pointer font-medium text-red-600 hover:text-red-800">
+                        className="cursor-pointer text-sm font-medium text-red-600 hover:text-red-800">
                         Delete
                       </button>
                     </td>
@@ -210,7 +213,7 @@ const DepartmentManagement = () => {
             </table>
           </div>
         )}
-      </div>
+      </div>{" "}
     </div>
   );
 };

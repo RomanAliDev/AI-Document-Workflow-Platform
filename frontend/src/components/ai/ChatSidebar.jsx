@@ -12,7 +12,7 @@ const ChatSidebar = ({
         <button
           type="button"
           onClick={onNewChat}
-          className="w-full rounded-lg bg-gray-900 px-4 py-2 cursor-pointer text-sm font-medium text-white hover:bg-gray-800">
+          className="w-full rounded-lg bg-blue-600  px-4 py-2 cursor-pointer text-sm font-medium text-white hover:bg-gray-800">
           + New Chat
         </button>
       </div>
@@ -25,7 +25,7 @@ const ChatSidebar = ({
           chats.map((chat) => (
             <div
               key={chat.id}
-              className={`group mb-1 flex items-center rounded-lg ${
+              className={`group mb-1 bg-gray-200 flex items-center rounded-lg ${
                 activeChatId === chat.id ? "bg-gray-200" : "hover:bg-gray-100"
               }`}>
               {/* Chat Title */}

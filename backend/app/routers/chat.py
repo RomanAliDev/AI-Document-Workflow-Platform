@@ -47,38 +47,60 @@ def chat(
             detail="Chat session not found."
         )
 
-    schema = get_database_schema(db)
+    try:
+        # Generate database schema
+        schema = get_database_schema(db)
 
-    result = process_question(
-        question=question,
-        schema=schema,
-        db=db
-    )
-    if chat_session.title == "New Chat":
-        chat_session.title = question[:50].strip()
+        # Process AI question
+        result = process_question(
+            question=question,
+            schema=schema,
+            db=db,
+            
+        )
 
-    if len(question) > 50:
-        chat_session.title += "..."
+        # Update chat title
+        if chat_session.title == "New Chat":
+            chat_session.title = question[:50].strip()
 
-    chat_history = ChatHistory(
-        user_id=current_user.id,
-        session_id=session_id,
-        question=question,
-        answer=result["answer"],
-        route=result["route"],
-        sources=result.get("sources", []),
-        results=result.get("results", [])
-    )
+        if len(question) > 50:
+            chat_session.title += "..."
 
-    db.add(chat_history)
+        # Save chat history
+        chat_history = ChatHistory(
+            user_id=current_user.id,
+            session_id=session_id,
+            question=question,
+            answer=result["answer"],
+            route=result["route"],
+            sources=result.get("sources", []),
+            results=result.get("results", [])
+        )
 
-    chat_session.updated_at = __import__("datetime").datetime.utcnow()
+        db.add(chat_history)
 
-    db.commit()
-    db.refresh(chat_history)
+        chat_session.updated_at = (
+            __import__("datetime").datetime.utcnow()
+        )
 
-    return result
+        db.commit()
+        db.refresh(chat_history)
 
+        return result
+
+    except Exception as error:
+        # Rollback any pending database transaction
+        db.rollback()
+
+        # Print actual error in backend terminal
+        print("CHAT ERROR TYPE:", type(error).__name__)
+        print("CHAT ERROR:", error)
+
+        # Send actual error to frontend
+        raise HTTPException(
+            status_code=500,
+            detail=str(error)
+        )
 
 
 @router.post("/sessions")

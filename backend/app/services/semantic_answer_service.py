@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-3.6-flash",
+    model="gemini-3.7-flash",
     temperature=0,
     api_key=os.getenv("GOOGLE_API_KEY")
 )
@@ -33,12 +33,20 @@ def generate_semantic_answer(
         {context}
 
         Instructions:
-        - Answer only using the provided context.
-        - Do not invent information.
-        - If the answer is not available in the context,
-          clearly say that the information was not found.
-        - Keep the answer clear and concise.
-        - Return only the final answer.
+    - Answer the user's question using only the provided context.
+    - You may add short natural words or phrases to make the answer
+      clear and easy to understand.
+    - Do not invent, assume, or change any factual information.
+    - If the answer is not available in the context,
+      clearly say that the information was not found.
+    - Keep the answer clear, concise, and accurate.
+    - Return only the final answer.
+    - Do not start the answer with bullets, *, **, #, headings, or other
+      Markdown formatting.
+    - Do not use Markdown formatting such as *, **, bullets, numbered lists,
+      or tables.
+    - Keep names, dates, amounts, and other factual information
+      from the document context unchanged.
         """
     )
 

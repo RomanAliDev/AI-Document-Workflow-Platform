@@ -10,13 +10,16 @@ def save_document_chunks(
     document_id: int,
     text: str
 ):
+
+    print("Text :", text)
     chunks = chunk_document(text)
 
     if not chunks:
         return []
 
     embeddings = generate_embeddings(chunks)
-
+    print("Chunks:", chunks)
+    print("Total chunks:", len(chunks))
     saved_chunks = []
 
     for index, (chunk, embedding) in enumerate(

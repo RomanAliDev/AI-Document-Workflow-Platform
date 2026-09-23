@@ -1,4 +1,4 @@
-from langchain_text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 def chunk_document(text:str):
     splitter=RecursiveCharacterTextSplitter(

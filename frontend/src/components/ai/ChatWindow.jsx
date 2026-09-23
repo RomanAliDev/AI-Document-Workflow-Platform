@@ -1,6 +1,4 @@
 import MessageBubble from "./MessageBubble";
-import SourceCard from "./SourceCard";
-import QueryResult from "./QueryResult";
 
 const ChatWindow = ({ messages, loading }) => {
   return (
@@ -22,26 +20,6 @@ const ChatWindow = ({ messages, loading }) => {
       {messages.map((message, index) => (
         <div key={index}>
           <MessageBubble message={message} />
-
-          {message.role === "assistant" &&
-            message.route === "RAG" &&
-            message.sources?.length > 0 && (
-              <div className="ml-0 mt-2 max-w-2xl">
-                <p className="text-xs font-semibold text-gray-500">Sources</p>
-
-                {message.sources.map((source) => (
-                  <SourceCard key={source.chunk_id} source={source} />
-                ))}
-              </div>
-            )}
-
-          {message.role === "assistant" &&
-            message.route === "SQL" &&
-            message.results?.length > 0 && (
-              <div className="max-w-2xl">
-                <QueryResult result={message.results} />
-              </div>
-            )}
         </div>
       ))}
 

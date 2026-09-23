@@ -93,7 +93,7 @@ const Analytics = () => {
           return (
             <div
               key={card.title}
-              className="rounded-xl border bg-white p-5 shadow-sm">
+              className="rounded-xl border bg-white p-5 shadow-sm transition hover:shadow-md">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500">{card.title}</p>
@@ -103,8 +103,8 @@ const Analytics = () => {
                   </h2>
                 </div>
 
-                <div className="rounded-lg bg-gray-100 p-3">
-                  <Icon size={20} className="text-gray-700" />
+                <div className="rounded-lg bg-blue-50 p-3">
+                  <Icon size={20} className="text-blue-400" />
                 </div>
               </div>
             </div>
@@ -115,7 +115,7 @@ const Analytics = () => {
       {/* Processing Overview */}
       <div className="rounded-xl border bg-white p-6 shadow-sm">
         <div className="flex items-center gap-2">
-          <TrendingUp size={20} className="text-gray-700" />
+          <TrendingUp size={20} className="text-blue-600" />
 
           <h2 className="font-semibold text-gray-900">Processing Overview</h2>
         </div>
@@ -127,9 +127,9 @@ const Analytics = () => {
             <span className="font-semibold text-gray-900">{successRate}%</span>
           </div>
 
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-gray-100">
+          <div className="mt-2 h-4 overflow-hidden rounded-full bg-gray-100">
             <div
-              className="h-full rounded-full bg-gray-900"
+              className="h-full rounded-full bg-blue-400"
               style={{
                 width: `${Math.min(successRate, 100)}%`,
               }}
@@ -160,9 +160,9 @@ const Analytics = () => {
                     </span>
                   </div>
 
-                  <div className="mt-2 h-2 rounded-full bg-gray-100">
+                  <div className="mt-2 h-4 rounded-full bg-gray-100">
                     <div
-                      className="h-full rounded-full bg-gray-700"
+                      className="h-full rounded-full bg-blue-400"
                       style={{
                         width:
                           totalDocuments > 0
@@ -192,12 +192,12 @@ const Analytics = () => {
               {departments.map((department) => (
                 <div
                   key={department.name}
-                  className="flex items-center justify-between rounded-lg bg-gray-50 px-4 py-3">
+                  className="flex items-center justify-between rounded-lg bg-blue-50 px-4 py-3">
                   <span className="text-sm text-gray-600">
                     {department.name}
                   </span>
 
-                  <span className="font-semibold text-gray-900">
+                  <span className="font-semibold text-blue-600">
                     {department.count}
                   </span>
                 </div>

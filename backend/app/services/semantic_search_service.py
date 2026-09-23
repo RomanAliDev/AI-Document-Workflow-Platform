@@ -16,7 +16,7 @@ embeddings = GoogleGenerativeAIEmbeddings(
 def semantic_search(
     query: str,
     db: Session,
-    top_k: int = 5
+    top_k: int = 3
 ):
     #  User question ka embedding
     query_embedding = embeddings.embed_query(query)

@@ -13,7 +13,8 @@ llm = ChatGoogleGenerativeAI(
 
 def generate_sql_answer(
     question: str,
-    results
+    results,
+    
 ) -> str:
 
     response = llm.invoke(
@@ -27,12 +28,19 @@ def generate_sql_answer(
         Database Results:
         {results}
 
-        Instructions:
+       Instructions:
         - Answer the user's question using only the database results.
-        - Do not invent information.
-        - Keep the answer clear and concise.
+        - You may add short natural words or phrases to make the answer
+        clear and easy to understand.
+        - Do not invent, assume, or change any factual information.
+        - Keep the answer clear, concise, and accurate.
         - If no records are found, clearly say that no matching records were found.
         - Return only the final answer.
+        - Do not start the answer with bullets, *, **, #, headings, or other
+        Markdown formatting.
+        - Do not use Markdown formatting such as *, **, bullets, numbered lists,
+         or tables.
+        - Keep the original values from the database results unchanged.
         """
     )
 

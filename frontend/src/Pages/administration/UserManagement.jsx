@@ -112,7 +112,7 @@ const UserManagement = () => {
         <button
           type="button"
           onClick={() => setShowForm(!showForm)}
-          className="rounded-lg bg-gray-900 cursor-pointer px-4 py-2 text-sm font-medium text-white hover:bg-gray-800">
+          className="rounded-lg bg-blue-600  cursor-pointer px-4 py-2 text-sm font-medium text-white hover:bg-blue-800">
           + Create User
         </button>
       </div>
@@ -174,14 +174,14 @@ const UserManagement = () => {
             <div className="flex items-center gap-3 md:col-span-2">
               <button
                 type="submit"
-                className="rounded-lg bg-gray-900 cursor-pointer px-4 py-2 text-sm font-medium text-white hover:bg-gray-800">
+                className="rounded-lg bg-blue-600 cursor-pointer px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
                 Create User
               </button>
 
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="rounded-lg border px-4 py-2 cursor-pointer text-sm font-medium text-gray-700 hover:bg-gray-50">
+                className="rounded-lg border px-4 py-2 cursor-pointer text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
                 Cancel
               </button>
             </div>

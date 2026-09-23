@@ -18,7 +18,8 @@ def process_question(
         result = process_sql_question(
             question=question,
             schema=schema,
-            db=db
+            db=db,
+            
         )
 
         return {
@@ -33,7 +34,8 @@ def process_question(
 
         result = process_semantic_question(
             question=question,
-            db=db
+            db=db,
+            
         )
 
         return {
