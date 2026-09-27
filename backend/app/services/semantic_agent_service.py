@@ -13,7 +13,7 @@ def process_semantic_question(
     chunks = semantic_search(
         query=question,
         db=db,
-        top_k=5
+        top_k=3
     )
 
     # Relevant chunks → final answer

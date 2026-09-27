@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Menu } from "lucide-react";
 
 import {
   createChat,
@@ -18,6 +19,7 @@ const AIAssistant = () => {
   const [messages, setMessages] = useState([]);
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
 
   // Load chats for sidebar only
   useEffect(() => {
@@ -188,7 +190,7 @@ const AIAssistant = () => {
   };
 
   return (
-    <div className="flex h-[calc(100vh-7rem)] overflow-hidden rounded-xl border bg-white shadow-sm">
+    <div className="relative flex h-[calc(100vh-7rem)] overflow-hidden rounded-xl border bg-white shadow-sm">
       {/* Sidebar */}
       <ChatSidebar
         chats={chats}
@@ -196,17 +198,30 @@ const AIAssistant = () => {
         onNewChat={handleNewChat}
         onSelectChat={handleSelectChat}
         onDeleteChat={handleDeleteChat}
+        showSidebar={showSidebar}
+        onCloseSidebar={() => setShowSidebar(false)}
       />
 
       {/* Main Chat */}
-      <div className="flex flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col">
         {/* Header */}
-        <div className="border-b px-6 py-4">
-          <h1 className="text-xl font-semibold text-gray-900">AI Assistant</h1>
+        <div className="flex items-center gap-3 border-b px-4 py-3 sm:px-6 sm:py-4">
+          <button
+            type="button"
+            onClick={() => setShowSidebar(true)}
+            className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 md:hidden">
+            <Menu size={20} />
+          </button>
 
-          <p className="mt-1 text-sm text-gray-500">
-            Ask questions about your financial documents and data
-          </p>
+          <div className="min-w-0">
+            <h1 className="text-lg font-semibold text-gray-900 sm:text-xl">
+              AI Assistant
+            </h1>
+
+            <p className="mt-1 hidden text-sm text-gray-500 sm:block">
+              Ask questions about your financial documents and data
+            </p>
+          </div>
         </div>
 
         {/* Messages */}

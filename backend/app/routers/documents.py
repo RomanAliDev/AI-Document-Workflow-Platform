@@ -44,17 +44,17 @@ async def upload_document(
             detail=f"File type '{extension}' is not allowed."
         )
 
-    existing_document = (
-        db.query(Document)
-        .filter(Document.filename == file.filename)
-        .first()
-    )
+    # existing_document = (
+    #     db.query(Document)
+    #     .filter(Document.filename == file.filename)
+    #     .first()
+    # )
 
-    if existing_document:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Document already exists."
-        )
+    # if existing_document:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_400_BAD_REQUEST,
+    #         detail="Document already exists."
+    #     )
 
 
     os.makedirs(UPLOAD_DIR, exist_ok=True)

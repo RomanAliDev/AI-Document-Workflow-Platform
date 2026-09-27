@@ -17,101 +17,160 @@ def save_extracted_data(
     extracted_result,
     validation
 ):
-    print(f"Saving extracted data for document ID: {document.id}")
-
-    document_type = classification.document_type.lower().strip()
-    data = extracted_result.extracted_data
-
-    document.document_type = classification.document_type
-
-    if validation["is_valid"]:
-        document.status = "processed"
-    else:
-        document.status = "needs_review"
-
-    # Save complete extracted data for every document
-    extraction = DocumentExtraction(
-        document_id=document.id,
-        document_type=classification.document_type,
-        extracted_data=data,
-        validation_status=(
-            "valid"
-            if validation["is_valid"]
-            else "needs_review"
+    
+    try:
+        document_type = (
+            classification.document_type.lower().strip()
         )
-    )
 
-    db.add(extraction)
+        data = extracted_result.extracted_data
 
-    # Save common invoice fields
-    if document_type == "invoice":
+        # Ensure extracted data is a dictionary
+        if not isinstance(data, dict):
+            if hasattr(data, "model_dump"):
+                data = data.model_dump()
+            else:
+                raise ValueError(
+                    "Extracted data must be a dictionary."
+                )
 
-        invoice = Invoice(
+        document.document_type = (
+            classification.document_type
+        )
+
+        is_valid = validation["is_valid"]
+
+        if is_valid:
+            document.status = "processed"
+        else:
+            document.status = "needs_review"
+
+        # Save complete extracted JSON for every document
+        extraction = DocumentExtraction(
             document_id=document.id,
-            invoice_number=data.get("invoice_number"),
-            vendor_name=data.get("vendor_name"),
-            invoice_date=data.get("invoice_date"),
-            total_amount=data.get("total_amount"),
-            currency=data.get("currency"),
-            tax_amount=data.get("tax_amount")
+            document_type=classification.document_type,
+            extracted_data=data,
+            validation_status=(
+                "valid" if is_valid else "needs_review"
+            )
         )
 
-        db.add(invoice)
+        db.add(extraction)
 
-    # Save common purchase order fields
-    elif document_type in ["purchase order", "purchase_order", "po"]:
+        # Save common invoice fields
+        if "invoice" in document_type:
 
-        purchase_order = PurchaseOrder(
-            document_id=document.id,
-            po_number=data.get("po_number"),
-            vendor_name=data.get("vendor_name"),
-            po_date=data.get("po_date"),
-            total_amount=data.get("total_amount"),
-            currency=data.get("currency")
-        )
+            sender = data.get("sender") or {}
+            taxes = data.get("taxes") or []
 
-        db.add(purchase_order)
+            # Support both old and new extraction formats
+            vendor_name = (
+                data.get("vendor_name")
+                or sender.get("name")
+            )
 
-    # Save common goods receipt fields
-    elif document_type in ["goods receipt", "goods_receipt"]:
 
-        goods_receipt = GoodsReceipt(
-            document_id=document.id,
-            receipt_number=data.get("receipt_number"),
-            received_date=data.get("received_date"),
-            vendor_name=data.get("vendor_name"),
-            received_by=data.get("received_by")
-        )
+            total_amount = (
+                data.get("total_amount")
+                if data.get("total_amount") is not None
+                else data.get("total_due")
+            )  
+            invoice_date = (
+                data.get("invoice_date")
+                or data.get("issue_date")
+            )
 
-        db.add(goods_receipt)
+            tax_amount = data.get("tax_amount")
 
-    # Save common contract fields
-    elif document_type == "contract":
+            if tax_amount is None and isinstance(taxes, list):
+                tax_amount = sum(
+                    tax.get("amount", 0) or 0
+                    for tax in taxes
+                    if isinstance(tax, dict)
+                )
 
-        contract = Contract(
-            document_id=document.id,
-            contract_number=data.get("contract_number"),
-            party_name=data.get("party_name"),
-            start_date=data.get("start_date"),
-            end_date=data.get("end_date"),
-            contract_status=data.get("contract_status")
-        )
 
-        db.add(contract)
+            invoice = Invoice(
+                document_id=document.id,
+                invoice_number=data.get("invoice_number"),
+                vendor_name=vendor_name,
+                invoice_date=invoice_date,
+                total_amount=total_amount,
+                currency=data.get("currency"),
+                tax_amount=tax_amount
+            )
 
-    # Create manual review when validation fails
-    if not validation["is_valid"]:
+            db.add(invoice)
 
-        review = ManualReview(
-            document_id=document.id,
-            status="pending",
-            reason="; ".join(validation["errors"]),
-            created_at=datetime.utcnow()
-        )
+        # Save common purchase order fields
+        elif document_type in [
+            "purchase order",
+            "purchase_order",
+            "po"
+        ]:
 
-        db.add(review)
+            purchase_order = PurchaseOrder(
+                document_id=document.id,
+                po_number=data.get("po_number"),
+                vendor_name=data.get("vendor_name"),
+                po_date=data.get("po_date"),
+                total_amount=data.get("total_amount"),
+                currency=data.get("currency")
+            )
 
-    db.commit()
-    db.refresh(document)
+            db.add(purchase_order)
 
-    return document
+        # Save common goods receipt fields
+        elif document_type in [
+            "goods receipt",
+            "goods_receipt",
+            "receipt"
+
+        ]:
+
+            goods_receipt = GoodsReceipt(
+                document_id=document.id,
+                receipt_number=data.get("receipt_number"),
+                received_date=data.get("received_date"),
+                vendor_name=data.get("vendor_name"),
+                received_by=data.get("received_by")
+            )
+
+            db.add(goods_receipt)
+
+        # Save common contract fields
+        elif document_type == "contract":
+
+            contract = Contract(
+                document_id=document.id,
+                contract_number=data.get("contract_number"),
+                party_name=data.get("party_name"),
+                start_date=data.get("start_date"),
+                end_date=data.get("end_date"),
+                contract_status=data.get("contract_status")
+            )
+
+            db.add(contract)
+
+        # Create manual review when validation fails
+        if not is_valid:
+
+            review = ManualReview(
+                document_id=document.id,
+                status="pending",
+                reason="; ".join(
+                    validation.get("errors", [])
+                ),
+                created_at=datetime.utcnow()
+            )
+
+            db.add(review)
+
+        db.commit()
+        db.refresh(document)
+
+        return document
+
+    except Exception:
+        db.rollback()
+        raise

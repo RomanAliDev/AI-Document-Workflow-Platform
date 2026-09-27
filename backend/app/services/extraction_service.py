@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-3.7-flash",
+    model="gemini-3.6-flash",
     temperature=0,
     api_key=os.getenv("GOOGLE_API_KEY")
 )
@@ -36,6 +36,9 @@ def extract_document_data(
         - If a value is missing, do not invent it.
         - Return the extracted information as key-value pairs.
         - Preserve important numbers, dates, names and identifiers.
+        - Always return dates in YYYY-MM-DD format.
+        - Do not use formats such as DD/MM/YYYY or MM/DD/YYYY.
+
 
         Document:
         {text}

@@ -58,7 +58,7 @@ def get_analytics(
 
     failed_documents = (
         query
-        .filter(Document.status == "failed")
+        .filter(Document.status == "needs_review")
         .count()
     )
 

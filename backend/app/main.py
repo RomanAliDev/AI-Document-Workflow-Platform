@@ -10,6 +10,8 @@ from app.routers.analytics import router as analytics_router
 from app.routers.semantic_search import router as semantic_router 
 
 
+
+
 from app.models.document import Document
 from app.models.invoice import Invoice
 from app.models.purchase_order import PurchaseOrder

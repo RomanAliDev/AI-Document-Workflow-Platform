@@ -2,7 +2,7 @@ import MessageBubble from "./MessageBubble";
 
 const ChatWindow = ({ messages, loading }) => {
   return (
-    <div className="flex-1 space-y-4 overflow-y-auto p-6">
+    <div className="flex-1 space-y-4 overflow-y-auto p-3 sm:p-6">
       {messages.length === 0 && (
         <div className="flex h-full items-center justify-center">
           <div className="text-center">
