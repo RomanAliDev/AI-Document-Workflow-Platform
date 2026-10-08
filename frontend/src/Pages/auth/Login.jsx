@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { FileText } from "lucide-react";
 
 import { loginUser } from "../../services/authService";
 import { useAuth } from "../../context/AuthContext";
@@ -31,11 +32,8 @@ const Login = () => {
         email: decodedToken.email,
         role: decodedToken.role,
       };
-
-      // User aur token save karna
       login(user, data.access_token);
 
-      // Dashboard par redirect
       navigate("/dashboard");
     } catch (error) {
       setError(error.response?.data?.detail || "Invalid email or password");
@@ -48,6 +46,11 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="w-full max-w-md rounded-xl bg-white p-8 shadow-md">
         <div className="mb-8 text-center">
+          {/* Logo */}
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white">
+            <FileText size={24} />
+          </div>
+
           <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
 
           <p className="mt-2 text-sm text-gray-500">Login to your account</p>
@@ -96,7 +99,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
+            className="w-full rounded-lg bg-blue-600 px-4 py-3 cursor-pointer font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
