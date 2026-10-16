@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import Login from "../pages/auth/Login";
+import Login from "../Pages/auth/Login";
 import Dashboard from "../Pages/dashboard/Dashboard";
 import Documents from "../Pages/documents/Documents";
 import AIAssistant from "../Pages/ai/AIAssistant";
 import SemanticSearch from "../Pages/ai/SemanticSearch";
-import Settings from "../pages/Settings";
+import Settings from "../Pages/Settings";
 import UserManagement from "../Pages/administration/UserManagement";
 import DepartmentManagement from "../Pages/administration/DepartmentManagement";
 
