@@ -1,9 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "../pages/auth/Login";
-import Dashboard from "../pages/dashboard/Dashboard";
-import Documents from "../pages/documents/Documents";
-import AIAssistant from "../pages/ai/AIAssistant";
+import Dashboard from "../Pages/dashboard/Dashboard";
+import Documents from "../Pages/documents/Documents";
+import AIAssistant from "../Pages/ai/AIAssistant";
 import SemanticSearch from "../Pages/ai/SemanticSearch";
 import Settings from "../pages/Settings";
 import UserManagement from "../Pages/administration/UserManagement";
